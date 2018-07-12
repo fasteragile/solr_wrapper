@@ -71,7 +71,28 @@ module SolrWrapper
     def version_file
       static_config.version_file || File.join(instance_dir, "VERSION")
     end
+    
+    # KG Added from PR request.
+    def md5url
+      if static_config.md5sum =~ URI::regexp
+        static_config.md5sum
+      elsif default_download_url == static_config.archive_download_url
+        "#{default_download_url}.md5"
+      else
+        "http://www.us.apache.org/dist/lucene/solr/#{static_config.version}/solr-#{static_config.version}.zip.md5"
+      end
+    end
 
+    def md5sum
+      if static_config.md5sum && static_config.md5sum.match(/^[a-f0-9]{32}$/)
+        static_config.md5sum
+      end
+    end
+
+    def md5sum_path
+      File.join(download_dir, File.basename(md5url))
+    end
+    
     def solr_binary
       File.join(instance_dir, "bin", "solr")
     end
